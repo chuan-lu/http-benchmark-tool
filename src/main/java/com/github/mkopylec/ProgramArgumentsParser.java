@@ -5,6 +5,8 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+
 public class ProgramArgumentsParser {
 
     private static final String HTTP_METHOD = "m";
@@ -32,7 +34,7 @@ public class ProgramArgumentsParser {
 
     private String getArgumentValue(String name, String longName) {
         String value = commandLine.getOptionValue(name);
-        if (value != null) {
+        if (isNotBlank(value)) {
             return value;
         }
         return commandLine.getOptionValue(longName);
