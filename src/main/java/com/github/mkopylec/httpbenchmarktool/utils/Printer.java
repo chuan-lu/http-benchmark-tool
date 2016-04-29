@@ -4,7 +4,11 @@ import static java.lang.System.out;
 
 public class Printer {
 
-    public static void printLine(String text) {
-        out.println(text);
+    public static void printLine() {
+        out.println();
+    }
+
+    public static void printLine(Object value) {
+        out.println(value);
     }
 }

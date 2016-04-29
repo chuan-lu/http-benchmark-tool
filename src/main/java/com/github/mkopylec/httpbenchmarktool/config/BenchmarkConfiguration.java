@@ -11,16 +11,18 @@ public class BenchmarkConfiguration {
     private final HttpMethod httpMethod;
     private final List<Header> headers;
     private final StringEntity body;
+    private final int runTime;
     private final int requestsPerSecond;
     private final int warmUpTime;
 
-    BenchmarkConfiguration(String url, int warmUpTime, int requestsPerSecond, StringEntity body, List<Header> headers, HttpMethod httpMethod) {
+    BenchmarkConfiguration(String url, int warmUpTime, int requestsPerSecond, StringEntity body, List<Header> headers, HttpMethod httpMethod, int runTime) {
         this.url = url;
         this.warmUpTime = warmUpTime;
         this.requestsPerSecond = requestsPerSecond;
         this.body = body;
         this.headers = headers;
         this.httpMethod = httpMethod;
+        this.runTime = runTime;
     }
 
     public String getUrl() {
@@ -39,6 +41,10 @@ public class BenchmarkConfiguration {
         return body;
     }
 
+    public int getRunTime() {
+        return runTime;
+    }
+
     public int getRequestsPerSecond() {
         return requestsPerSecond;
     }
@@ -49,6 +55,6 @@ public class BenchmarkConfiguration {
 
     public enum HttpMethod {
 
-        GET, POST, PUT, HEAD, OPTION, DELETE;
+        GET, POST, PUT, PATCH, HEAD, OPTIONS, DELETE;
     }
 }
