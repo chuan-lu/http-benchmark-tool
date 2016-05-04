@@ -53,6 +53,10 @@ public class BenchmarkConfiguration {
         return warmUpTime;
     }
 
+    public int getNumberOfRequests() {
+        return runTime * requestsPerSecond;
+    }
+
     public enum HttpMethod {
 
         GET, POST, PUT, PATCH, HEAD, OPTIONS, DELETE;

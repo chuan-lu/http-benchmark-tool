@@ -30,11 +30,11 @@ public class ProgramArgumentsParser {
 
     private static final String RUN_TIME = "t";
     private static final String RUN_TIME_LONG = "time";
-    private static final String DEFAULT_RUN_TIME = "10";
+    private static final String DEFAULT_RUN_TIME = "30";
 
     private static final String REQUESTS_PER_SECOND = "r";
     private static final String REQUESTS_PER_SECOND_LONG = "rps";
-    private static final String DEFAULT_REQUESTS_PER_SECOND = "1500";
+    private static final String DEFAULT_REQUESTS_PER_SECOND = "400";
 
     private static final String WARM_UP_TIME = "w";
     private static final String WARM_UP_TIME_LONG = "warmup";

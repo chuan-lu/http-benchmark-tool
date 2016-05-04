@@ -10,8 +10,8 @@ import static java.lang.System.exit;
 public class HttpBenchmarkTool {
 
     public static void main(String[] args) {
-        long start = currentTimeMillis();
         printLine("Starting HTTP benchmark...");
+        long start = currentTimeMillis();
         BenchmarkRunner runner = new BenchmarkRunner();
         getRuntime().addShutdownHook(new Thread(runner::printResults));
         runner.runBenchmark(args);
