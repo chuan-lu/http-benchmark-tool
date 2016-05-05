@@ -5,7 +5,14 @@ import com.github.mkopylec.httpbenchmarktool.config.ProgramArgumentsParser;
 import com.google.common.util.concurrent.RateLimiter;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.http.Header;
-import org.apache.http.client.methods.*;
+import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpHead;
+import org.apache.http.client.methods.HttpOptions;
+import org.apache.http.client.methods.HttpPatch;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.springframework.web.client.RestTemplate;
@@ -17,10 +24,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.github.mkopylec.httpbenchmarktool.utils.Printer.printLine;
 import static com.google.common.util.concurrent.RateLimiter.create;
-import static java.lang.System.currentTimeMillis;
+import static java.util.Collections.singletonList;
 import static java.util.concurrent.Executors.newCachedThreadPool;
 import static java.util.concurrent.TimeUnit.HOURS;
 import static org.apache.http.impl.nio.client.HttpAsyncClients.createMinimal;
+import static org.springframework.http.HttpMethod.POST;
 
 public class BenchmarkRunner {
 
@@ -36,6 +44,7 @@ public class BenchmarkRunner {
     private final AtomicInteger numberOf5xx = new AtomicInteger(0);
     private final AtomicInteger numberOfErrors = new AtomicInteger(0);
     private final DescriptiveStatistics statistics = new DescriptiveStatistics();
+    private ResultsCollector resultsCollector;
 
     public void runBenchmark(String[] arguments) {
         ProgramArgumentsParser argumentsParser = new ProgramArgumentsParser(arguments);
@@ -44,9 +53,11 @@ public class BenchmarkRunner {
         RateLimiter rateLimiter = create(configuration.getRequestsPerSecond());
 //        threads = new ArrayList<>(configuration.getNumberOfRequests());
 //        threadPool = newFixedThreadPool(configuration.getRequestsPerSecond()*10);
+        resultsCollector = new ResultsCollector(configuration.getNumberOfRequests());
         threadPool = newCachedThreadPool();
+        restTemplate.setInterceptors(singletonList(resultsCollector));
         responseTimes = new ArrayList<>(configuration.getNumberOfRequests());
-        httpClient.start();
+//        httpClient.start();
         for (int i = 0; i < configuration.getNumberOfRequests(); i++) {
             rateLimiter.acquire();
             executeRequest(request);
@@ -55,7 +66,9 @@ public class BenchmarkRunner {
     }
 
     public void printResults() {
-        responseTimes.forEach(statistics::addValue);
+        printLine("Calculating statistics...");
+//        responseTimes.forEach(statistics::addValue);
+        DescriptiveStatistics statistics = resultsCollector.getResponseTimesStatistics();
         printLine();
         printLine("======== BENCHMARK RESULTS ========");
         printLine("50th percentile: " + (int) statistics.getPercentile(50) + " ms");
@@ -64,12 +77,12 @@ public class BenchmarkRunner {
         printLine("99.9th percentile: " + (int) statistics.getPercentile(99.9) + " ms");
         printLine("99.99th percentile: " + (int) statistics.getPercentile(99.99) + " ms");
         printLine();
-        printLine("Number of requests sent: " + responseTimes.size());
-        printLine("Number of 2xx responses: " + numberOf2xx.get());
-        printLine("Number of 3xx responses: " + numberOf3xx.get());
-        printLine("Number of 4xx responses: " + numberOf4xx.get());
-        printLine("Number of 5xx responses: " + numberOf5xx.get());
-        printLine("Number of errors: " + numberOfErrors.get());
+        printLine("Number of received responses: " + resultsCollector.getNumberOfCollectedResponses());
+        printLine("Number of 2xx responses: " + resultsCollector.getNumberOf2xx());
+        printLine("Number of 3xx responses: " + resultsCollector.getNumberOf3xx());
+        printLine("Number of 4xx responses: " + resultsCollector.getNumberOf4xx());
+        printLine("Number of 5xx responses: " + resultsCollector.getNumberOf5xx());
+        printLine("Number of errors: " + resultsCollector.getNumberOfErrors());
         printLine("==================================");
     }
 
@@ -118,12 +131,12 @@ public class BenchmarkRunner {
     private void executeRequest(HttpRequestBase request) {
         threadPool.execute(() -> {
 //            printLine("exec");
-            try {
+//            try {
 //                RestTemplate restTemplate = new RestTemplate();
-                long start = currentTimeMillis();
+//                long start = currentTimeMillis();
 //                HttpResponse response = httpClient.execute(request, null).get();
-                restTemplate.getForEntity(request.getURI(), String.class);
-                addResponseTime(currentTimeMillis() - start);
+            restTemplate.execute(request.getURI(), POST, null, null);
+//                addResponseTime(currentTimeMillis() - start);
 //                printLine("end");
 //                int responseStatus = response.getStatusLine().getStatusCode();
 //                if (responseStatus < 300) {
@@ -135,10 +148,10 @@ public class BenchmarkRunner {
 //                } else {
 //                    numberOf5xx.incrementAndGet();
 //                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                numberOfErrors.incrementAndGet();
-            }
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//                numberOfErrors.incrementAndGet();
+//            }
         });
 //        thread.start();
 //        threads.add(thread);

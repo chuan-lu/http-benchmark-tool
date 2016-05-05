@@ -34,7 +34,7 @@ public class ProgramArgumentsParser {
 
     private static final String REQUESTS_PER_SECOND = "r";
     private static final String REQUESTS_PER_SECOND_LONG = "rps";
-    private static final String DEFAULT_REQUESTS_PER_SECOND = "400";
+    private static final String DEFAULT_REQUESTS_PER_SECOND = "500";
 
     private static final String WARM_UP_TIME = "w";
     private static final String WARM_UP_TIME_LONG = "warmup";
