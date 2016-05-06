@@ -1,8 +1,8 @@
 package com.github.mkopylec.httpbenchmarktool.config;
 
-import com.github.mkopylec.httpbenchmarktool.config.BenchmarkConfiguration.HttpMethod;
 import org.apache.http.Header;
 import org.apache.http.entity.StringEntity;
+import org.springframework.http.HttpMethod;
 
 import java.util.ArrayList;
 import java.util.List;

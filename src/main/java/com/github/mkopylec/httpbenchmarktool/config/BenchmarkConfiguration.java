@@ -2,6 +2,7 @@ package com.github.mkopylec.httpbenchmarktool.config;
 
 import org.apache.http.Header;
 import org.apache.http.entity.StringEntity;
+import org.springframework.http.HttpMethod;
 
 import java.util.List;
 
@@ -55,10 +56,5 @@ public class BenchmarkConfiguration {
 
     public int getNumberOfRequests() {
         return runTime * requestsPerSecond;
-    }
-
-    public enum HttpMethod {
-
-        GET, POST, PUT, PATCH, HEAD, OPTIONS, DELETE;
     }
 }

@@ -5,12 +5,12 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
-import static com.github.mkopylec.httpbenchmarktool.config.BenchmarkConfiguration.HttpMethod.valueOf;
 import static com.github.mkopylec.httpbenchmarktool.config.BenchmarkConfigurationBuilder.aBenchmarkConfiguration;
 import static java.lang.Integer.parseInt;
 import static java.util.Collections.emptyList;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.commons.lang3.StringUtils.upperCase;
+import static org.springframework.http.HttpMethod.valueOf;
 
 public class ProgramArgumentsParser {
 
@@ -30,11 +30,11 @@ public class ProgramArgumentsParser {
 
     private static final String RUN_TIME = "t";
     private static final String RUN_TIME_LONG = "time";
-    private static final String DEFAULT_RUN_TIME = "30";
+    private static final String DEFAULT_RUN_TIME = "180";
 
     private static final String REQUESTS_PER_SECOND = "r";
     private static final String REQUESTS_PER_SECOND_LONG = "rps";
-    private static final String DEFAULT_REQUESTS_PER_SECOND = "500";
+    private static final String DEFAULT_REQUESTS_PER_SECOND = "200";
 
     private static final String WARM_UP_TIME = "w";
     private static final String WARM_UP_TIME_LONG = "warmup";

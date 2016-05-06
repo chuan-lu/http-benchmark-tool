@@ -12,9 +12,9 @@ public class HttpBenchmarkTool {
     public static void main(String[] args) {
         printLine("Starting HTTP benchmark...");
         long start = currentTimeMillis();
-        BenchmarkRunner runner = new BenchmarkRunner();
+        BenchmarkRunner runner = new BenchmarkRunner(args);
         getRuntime().addShutdownHook(new Thread(runner::printResults));
-        runner.runBenchmark(args);
+        runner.runBenchmark();
         printLine("HTTP benchmark ended after " + (currentTimeMillis() - start) + " ms.");
         exit(0);
     }

@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static java.lang.System.currentTimeMillis;
+import static java.lang.System.nanoTime;
 
 public class ResultsCollector implements ClientHttpRequestInterceptor {
 
@@ -21,7 +21,6 @@ public class ResultsCollector implements ClientHttpRequestInterceptor {
     private final AtomicInteger numberOf3xx = new AtomicInteger(0);
     private final AtomicInteger numberOf4xx = new AtomicInteger(0);
     private final AtomicInteger numberOf5xx = new AtomicInteger(0);
-    private final AtomicInteger numberOfErrors = new AtomicInteger(0);
 
     public ResultsCollector(int numberOfRequests) {
         responseTimes = new ArrayList<>(numberOfRequests);
@@ -29,30 +28,25 @@ public class ResultsCollector implements ClientHttpRequestInterceptor {
 
     @Override
     public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
-        ClientHttpResponse response = null;
-        long start = currentTimeMillis();
-        try {
-            response = execution.execute(request, body);
-            HttpStatus statusCode = response.getStatusCode();
-            if (statusCode.is2xxSuccessful()) {
-                numberOf2xx.incrementAndGet();
-            } else if (statusCode.is3xxRedirection()) {
-                numberOf3xx.incrementAndGet();
-            } else if (statusCode.is4xxClientError()) {
-                numberOf4xx.incrementAndGet();
-            } else {
-                numberOf5xx.incrementAndGet();
-            }
-        } catch (Exception ex) {
-            numberOfErrors.incrementAndGet();
+        ClientHttpResponse response = execution.execute(request, body);
+        long start = nanoTime();
+        HttpStatus statusCode = response.getStatusCode();
+        addResponseTime(nanoTime() - start);
+        if (statusCode.is2xxSuccessful()) {
+            numberOf2xx.incrementAndGet();
+        } else if (statusCode.is3xxRedirection()) {
+            numberOf3xx.incrementAndGet();
+        } else if (statusCode.is4xxClientError()) {
+            numberOf4xx.incrementAndGet();
+        } else {
+            numberOf5xx.incrementAndGet();
         }
-        addResponseTime(currentTimeMillis() - start);
         return response;
     }
 
     public DescriptiveStatistics getResponseTimesStatistics() {
         DescriptiveStatistics statistics = new DescriptiveStatistics();
-        responseTimes.forEach(statistics::addValue);
+        responseTimes.forEach(v -> statistics.addValue(v / 1000000));
         return statistics;
     }
 
@@ -74,10 +68,6 @@ public class ResultsCollector implements ClientHttpRequestInterceptor {
 
     public int getNumberOf5xx() {
         return numberOf5xx.get();
-    }
-
-    public int getNumberOfErrors() {
-        return numberOfErrors.get();
     }
 
     private void addResponseTime(long responseTime) {
