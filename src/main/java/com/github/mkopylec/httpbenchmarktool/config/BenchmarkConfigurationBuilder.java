@@ -14,7 +14,7 @@ class BenchmarkConfigurationBuilder {
     private String url;
     private HttpMethod httpMethod;
     private List<Header> headers = new ArrayList<>();
-    private StringEntity body;
+    private String body;
     private int runTime;
     private int requestsPerSecond;
     private int warmUpTime;
@@ -42,10 +42,11 @@ class BenchmarkConfigurationBuilder {
     }
 
     public BenchmarkConfigurationBuilder withBody(String body) {
-        if (body != null) {
+       /* if (body != null) {
             this.body = new StringEntity(body, forName("UTF-8"));
-        }
-        return this;
+        }*/
+       this.body = body;
+       return this;
     }
 
     public BenchmarkConfigurationBuilder withRunTime(int runTime) {

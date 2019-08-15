@@ -4,8 +4,12 @@ import com.github.mkopylec.httpbenchmarktool.config.BenchmarkConfiguration;
 import com.github.mkopylec.httpbenchmarktool.config.ProgramArgumentsParser;
 import com.google.common.util.concurrent.RateLimiter;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -22,13 +26,19 @@ public class BenchmarkRunner {
     private final RestTemplate restTemplate = new RestTemplate();
     private final AtomicInteger numberOfErrors = new AtomicInteger(0);
     private final ResultsCollector resultsCollector;
+    private final HttpEntity<String> requestEntity;
 
-    public BenchmarkRunner(String[] arguments) {
+	public BenchmarkRunner(String[] arguments) {
         ProgramArgumentsParser argumentsParser = new ProgramArgumentsParser(arguments);
         configuration = argumentsParser.getBenchmarkConfiguration();
         resultsCollector = new ResultsCollector(configuration.getNumberOfRequests());
         threadPool = newCachedThreadPool();
         restTemplate.setInterceptors(singletonList(resultsCollector));
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+		headers.setConnection("close");
+		requestEntity = new HttpEntity<>(configuration.getBody(), headers);
     }
 
     public void runBenchmark() {
@@ -53,8 +63,8 @@ public class BenchmarkRunner {
         printLine("99.99th percentile: " + (int) statistics.getPercentile(99.99) + " ms");
         printLine();
         printLine("Number of received responses: " + resultsCollector.getNumberOfCollectedResponses());
-        printLine("Number of 2xx responses: " + resultsCollector.getNumberOf2xx());
-        printLine("Number of 3xx responses: " + resultsCollector.getNumberOf3xx());
+        printLine("Number of 200 responses: " + resultsCollector.getNumberOf200());
+        printLine("Number of 204 responses: " + resultsCollector.getNumberOf204());
         printLine("Number of 4xx responses: " + resultsCollector.getNumberOf4xx());
         printLine("Number of 5xx responses: " + resultsCollector.getNumberOf5xx());
         printLine("Number of errors: " + numberOfErrors.get());
@@ -64,8 +74,10 @@ public class BenchmarkRunner {
     private void executeRequest() {
         threadPool.execute(() -> {
             try {
-                restTemplate.execute(configuration.getUrl(), configuration.getHttpMethod(), null, null);
+                //restTemplate.execute(configuration.getUrl(), configuration.getHttpMethod(), null, null);
+                restTemplate.exchange(configuration.getUrl(), configuration.getHttpMethod(), requestEntity, String.class);
             } catch (Exception e) {
+                printLine(e);
                 numberOfErrors.incrementAndGet();
             }
         });

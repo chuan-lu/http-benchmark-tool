@@ -11,12 +11,12 @@ public class BenchmarkConfiguration {
     private final String url;
     private final HttpMethod httpMethod;
     private final List<Header> headers;
-    private final StringEntity body;
+    private final String body;
     private final int runTime;
     private final int requestsPerSecond;
     private final int warmUpTime;
 
-    BenchmarkConfiguration(String url, int warmUpTime, int requestsPerSecond, StringEntity body, List<Header> headers, HttpMethod httpMethod, int runTime) {
+    BenchmarkConfiguration(String url, int warmUpTime, int requestsPerSecond, String body, List<Header> headers, HttpMethod httpMethod, int runTime) {
         this.url = url;
         this.warmUpTime = warmUpTime;
         this.requestsPerSecond = requestsPerSecond;
@@ -38,7 +38,7 @@ public class BenchmarkConfiguration {
         return headers;
     }
 
-    public StringEntity getBody() {
+    public String getBody() {
         return body;
     }
 
